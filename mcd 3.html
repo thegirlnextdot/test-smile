@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Figma UI Mockup</title>
+  <!-- Import the web fonts used in your Figma design -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jura&family=Just+Another+Hand&family=Kristi&display=swap" rel="stylesheet">
+  <style>
+    /* --- 1. BASE STYLES (Paste Figma Typography Here) --- */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #FFF;
+      overflow: hidden; /* Prevents scrolling */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    /* --- THE 1920x1080 CANVAS --- */
+    #app-container {
+      width: 1920px;
+      height: 1080px;
+      position: relative;
+      overflow: hidden;
+      transform-origin: center center;
+    }
+
+    /* --- 2. SCREEN LAYOUT --- */
+    .screen {
+      display: none; /* Hidden by default */
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .screen.active {
+      display: flex; /* Only show the active screen */
+    }
+
+    /* --- 3. BACKGROUND COLORS (Paste Figma Colors Here) --- */
+    #screen-start { background-color: #FFF; }
+    #screen-scanner { background-color: #121212; color: white; }
+    #screen-loading { background-color: #E73A3A; color: white; }
+    #screen-prize { background-color: #DA291C; color: white; }
+
+    /* --- 4. BUTTONS & TEXT --- */
+    h1 { font-size: 48px; margin-bottom: 10px; text-align: center; }
+    p { font-size: 24px; margin-bottom: 30px; text-align: center; opacity: 0.9; }
+
+    .btn {
+      background-color: #FFC72C;
+      color: black;
+      font-size: 24px;
+      font-weight: bold;
+      border: none;
+      padding: 16px 40px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .btn:hover { transform: scale(1.05); }
+
+    /* --- 6. PHOTOBOOTH LAYOUT --- */
+    .collage-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .polaroid {
+      background: white;
+      padding: 10px 10px 30px 10px;
+      position: absolute;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      color: black;
+      font-weight: bold;
+      text-align: center;
+    }
+    .polaroid-img {
+      width: 150px;
+      height: 120px;
+      background: #ddd;
+      margin-bottom: 10px;
+    }
+    .prize-box {
+      z-index: 10;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app-container">
+    <!-- 1. START PAGE -->
+    <div id="screen-start" class="screen active">
+      <!-- McDonald's Logo -->
+      <img style="width: 256.84px; height: 224.93px; margin-bottom: 20px;" src="mcd-logo.svg" alt="McD Logo" />
+      <!-- The elements are centered by default, we will use absolute positioning later -->
+      <div style="width: 1255.86px; height: 310.59px; text-align: center; color: black; font-size: 86.42px; font-family: Inter; font-weight: 500; word-wrap: break-word">Give us your best smile!<br/>We’ll match it with<br/>Happy Meal!</div>
+      <div style="width: 1255.86px; height: 39.16px; text-align: center; color: black; font-size: 32.41px; font-family: Inter; font-weight: 400; word-wrap: break-word; margin: 40px 0;">Not just any smile. Your best one!</div>
+      <!-- Scaled down button with perfect flexbox centering -->
+      <div style="width: 350px; height: 85px; background: #E73A3A; border-radius: 45px; cursor: pointer; transition: transform 0.2s; display: flex; align-items: center; justify-content: center; color: white; font-size: 44px; font-family: Inter, sans-serif; font-weight: 500;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" onclick="showScreen('screen-scanner')">
+        START
+      </div>
+    </div>
+
+    <!-- 2. SCANNER PAGE -->
+    <div id="screen-scanner" class="screen">
+      <!-- Fullscreen Webcam -->
+      <video id="webcam" autoplay playsinline style="position: absolute; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);"></video>
+      <canvas id="output_canvas" width="1920" height="1080" style="position: absolute; width: 100%; height: 100%; object-fit: cover;"></canvas>
+      
+      <!-- McD Logo -->
+      <img style="width: 117.06px; height: 102.52px; position: absolute; top: 40px; left: 40px;" src="mcd-logo.svg" />
+
+      <!-- Dynamic Bottom Text (From Figma) -->
+      <div style="position: absolute; top: 896.31px; left: 50%; transform: translateX(-50%); width: 1300.29px; height: 88px;">
+        <div id="scanner-message" style="width: 1300.29px; height: 88px; left: 0px; top: 0px; position: absolute; text-align: center; color: white; font-size: 86.42px; font-family: Inter, sans-serif; font-weight: 500; word-wrap: break-word;">Hold still, we’re reading you!</div>
+      </div>
+    </div>
+
+    <!-- 3. LOADING PAGE -->
+    <div id="screen-loading" class="screen">
+      <!-- McD Logo -->
+      <img style="width: 190.20px; height: 166.57px; margin-bottom: 40px;" src="mcd-logo.svg" />
+      <!-- Main Text -->
+      <div style="width: 930.01px; height: 230px; text-align: center; color: white; font-size: 64px; font-family: Inter, sans-serif; font-weight: 500; word-wrap: break-word; margin-bottom: 20px;">Okay...<br/>That was a good one!<br/>Let’s see what you earned.</div>
+      <!-- Simple SVG Loading Animation -->
+      <svg style="width: 137.56px; height: 137.56px; margin-bottom: 20px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" fill="none" stroke="#FFC72C" stroke-width="8" r="35" stroke-dasharray="164.9 56.9">
+          <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" values="0 50 50;360 50 50"/>
+        </circle>
+      </svg>
+      <!-- Subtext -->
+      <div style="width: 930.01px; height: 29px; text-align: center; color: white; font-size: 24px; font-family: Inter, sans-serif; font-weight: 400; word-wrap: break-word;">Finding your reward...</div>
+    </div>
+
+    <!-- 4. PRIZE PAGE -->
+    <div id="screen-prize" class="screen">
+      <!-- Random Background Image from Figma -->
+      <img id="prize-bg" style="width: 1920px; height: 1080px; position: absolute; top: 0px; left: 0px; z-index: 0;" src="" />
+
+      <!-- Close Button (X) -->
+      <div style="position: absolute; left: 1758px; top: 60px; width: 80px; height: 80px; cursor: pointer; z-index: 20; display: flex; align-items: center; justify-content: center; font-size: 80px; color: white; font-family: 'Jura', sans-serif;" onclick="resetApp()">X</div>
+      
+      <div class="prize-box">
+        <!-- Promo Code Block (Absolute Placement) -->
+        <div id="promo-code" style="left: 282.99px; top: 518.47px; position: absolute; text-align: center; color: white; font-size: 55.60px; font-family: 'Kenyan Coffee', sans-serif; font-weight: 400; word-wrap: break-word">115DN</div>
+        <div style="left: 104.85px; top: 518.47px; position: absolute; text-align: center; color: white; font-size: 55.60px; font-family: 'Kenyan Coffee', sans-serif; font-weight: 400; word-wrap: break-word">Use code : </div>
+      </div>
+
+      <!-- 100% Captured Photo Container (Absolute Placement) -->
+      <div id="prize-photo-100" style="width: 276.64px; height: 253.11px; left: 108.64px; top: 607.29px; position: absolute; background: #D9D9D9; background-size: cover; background-position: center; z-index: 10;"></div>
+
+      <!-- Share Button (Absolute Placement) -->
+      <img src="sharebutton.svg" alt="Share your smile" style="position: absolute; left: 108.60px; top: 867.54px; width: 277px; height: 47px; cursor: pointer; z-index: 10;" onclick="window.showScreen('screen-share')" />
+    </div>
+
+    <!-- 5. SHARE PAGE -->
+    <div id="screen-share" class="screen" style="background-color: black;">
+      <!-- Close Button (X) -->
+      <div style="position: absolute; left: 1758px; top: 60px; width: 80px; height: 80px; cursor: pointer; z-index: 20; display: flex; align-items: center; justify-content: center; font-size: 80px; color: white; font-family: 'Jura', sans-serif;" onclick="resetApp()">X</div>
+      
+      <!-- Photobox 1.png overlay -->
+      <img style="width: 566px; height: 926px; left: 677px; top: 77px; position: absolute; z-index: 10; pointer-events: none;" src="photobox-1.png" />
+
+      <!-- The Photo Grid (Absolute Placement) -->
+      <div id="share-photo-0" style="width: 237.52px; height: 237.52px; left: 710.48px; top: 108.40px; position: absolute; background: #D9D9D9; background-size: cover; background-position: center; z-index: 5;"></div>
+      <div id="share-photo-20" style="width: 237.52px; height: 237.52px; left: 972px; top: 108.40px; position: absolute; background: #D9D9D9; background-size: cover; background-position: center; z-index: 5;"></div>
+      <div id="share-photo-40" style="width: 237.52px; height: 237.52px; left: 710.48px; top: 371.23px; position: absolute; background: #D9D9D9; background-size: cover; background-position: center; z-index: 5;"></div>
+      <div id="share-photo-60" style="width: 237.52px; height: 237.52px; left: 972px; top: 371.23px; position: absolute; background: #D9D9D9; background-size: cover; background-position: center; z-index: 5;"></div>
+      <div id="share-photo-80" style="width: 237.52px; height: 237.52px; left: 710.48px; top: 634.07px; position: absolute; background: #D9D9D9; background-size: cover; background-position: center; z-index: 5;"></div>
+      <div id="share-photo-100" style="width: 237.52px; height: 237.52px; left: 972px; top: 634.07px; position: absolute; background: #D9D9D9; background-size: cover; background-position: center; z-index: 5;"></div>
+    </div>
+  </div>
+
+  <!-- THE MEDIAPIPE LOGIC -->
+  <script type="module">
+    import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
+
+    // Navigation function (Attached to window so HTML buttons can click it)
+    window.showScreen = function(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+
+      // Load random background when showing the prize page
+      if (screenId === 'screen-prize') {
+        const bgImages = ['prize-bg-1.png', 'prize-bg-2.png', 'prize-bg-3.png'];
+        const randomImage = bgImages[Math.floor(Math.random() * bgImages.length)];
+        document.getElementById('prize-bg').src = randomImage;
+
+        // Generate Random Promo Code
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code = '';
+        for (let i = 0; i < 5; i++) {
+          code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById('promo-code').innerText = code;
+
+        // Display the 100% Captured Photo
+        if (capturedImages[100]) {
+          document.getElementById('prize-photo-100').style.backgroundImage = `url(${capturedImages[100]})`;
+        }
+      }
+    };
+
+    window.resetApp = function() {
+      hasFinished = false; // Reset the lock
+      isAutoCounting = false; // Reset the 3-second timer
+      capturedMilestones.clear(); // Reset the photo booth milestones
+      capturedImages = {}; // Clear stored photos
+      
+      // Clear the collage backgrounds
+      [0, 20, 40, 60, 80, 100].forEach(m => {
+        const photoDiv = document.getElementById(`share-photo-${m}`);
+        if (photoDiv) photoDiv.style.backgroundImage = '';
+      });
+      const prizePhoto = document.getElementById('prize-photo-100');
+      if (prizePhoto) prizePhoto.style.backgroundImage = '';
+
+      window.showScreen('screen-start');
+    };
+
+    // --- AUTO-SCALING LOGIC ---
+    window.resizeApp = function() {
+      const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+      document.getElementById('app-container').style.transform = `scale(${scale})`;
+    };
+    window.addEventListener('resize', window.resizeApp);
+    window.resizeApp(); // Run once on load
+
+    // --- TRACKING LOGIC ---
+    const video = document.getElementById("webcam");
+    const canvas = document.getElementById("output_canvas");
+    const ctx = canvas.getContext("2d");
+
+    let faceLandmarker;
+    let lastVideoTime = -1;
+    let isAutoCounting = false;
+    let countStartTime = 0;
+    let hasFinished = false; 
+    
+    // --- PHOTOBOOTH VARIABLES ---
+    const milestones = [0, 20, 40, 60, 80, 100];
+    let capturedImages = {};
+    let capturedMilestones = new Set();
+
+    function getWebcamImage() {
+      if (!video.videoWidth) return null;
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = video.videoWidth;
+      offCanvas.height = video.videoHeight;
+      const offCtx = offCanvas.getContext('2d');
+      offCtx.translate(offCanvas.width, 0);
+      offCtx.scale(-1, 1);
+      offCtx.drawImage(video, 0, 0, offCanvas.width, offCanvas.height);
+      return offCanvas.toDataURL('image/jpeg', 0.8);
+    }
+
+    function generateCollage() {
+      milestones.forEach((m) => {
+        const photoDiv = document.getElementById(`share-photo-${m}`);
+        if (photoDiv && capturedImages[m]) {
+          photoDiv.style.backgroundImage = `url(${capturedImages[m]})`;
+        }
+      });
+    }
+
+    async function setupFaceLandmarker() {
+      const filesetResolver = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
+      faceLandmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
+        baseOptions: { modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`, delegate: "GPU" },
+        outputFaceBlendshapes: true,
+        runningMode: "VIDEO",
+        numFaces: 1
+      });
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1920, height: 1080 } });
+      video.srcObject = stream;
+      video.addEventListener("loadeddata", () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        predictWebcam();
+      });
+    }
+
+    async function predictWebcam() {
+      let startTimeMs = performance.now();
+      if (lastVideoTime !== video.currentTime) {
+        lastVideoTime = video.currentTime;
+        const results = faceLandmarker.detectForVideo(video, startTimeMs);
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (results.faceBlendshapes && results.faceBlendshapes.length > 0) {
+          const blendshapes = results.faceBlendshapes[0].categories;
+          
+          const smileLeft = blendshapes.find(c => c.categoryName === 'mouthSmileLeft')?.score || 0;
+          const smileRight = blendshapes.find(c => c.categoryName === 'mouthSmileRight')?.score || 0;
+          const eyeSquintLeft = blendshapes.find(c => c.categoryName === 'eyeSquintLeft')?.score || 0;
+          const eyeSquintRight = blendshapes.find(c => c.categoryName === 'eyeSquintRight')?.score || 0;
+          
+          const mouthScore = (smileLeft + smileRight) / 2;
+          const eyeScore = (eyeSquintLeft + eyeSquintRight) / 2;
+          const rawScore = (mouthScore * 0.5) + (eyeScore * 0.5);
+          
+          let percent = 0;
+          if (rawScore > 0.10) { percent = Math.round(((rawScore - 0.10) / 0.85) * 100); }
+          percent = Math.max(0, Math.min(100, percent));
+          
+          if (percent >= 90) {
+            if (!isAutoCounting) { isAutoCounting = true; countStartTime = performance.now(); }
+          } else if (percent < 50) { isAutoCounting = false; }
+
+          if (isAutoCounting) {
+            const elapsed = performance.now() - countStartTime;
+            percent = Math.floor(90 + (10 * Math.min(elapsed / 3000, 1)));
+          }
+          
+          let message = "Neutral"; let color = "#0088FF";
+          if (percent > 0 && percent <= 20) { message = "Givin' us very little"; color = "#E72B1A"; }
+          else if (percent >= 21 && percent <= 40) { message = "Come on!"; color = "#E72B1A"; }
+          else if (percent >= 41 && percent <= 60) { message = "Didn't reach your eyes"; color = "#E72B1A"; }
+          else if (percent >= 61 && percent <= 80) { message = "Not bad..."; color = "#E72B1A"; }
+          else if (percent >= 81 && percent <= 99) { message = "Almost there"; color = "#E7B41A"; }
+          else if (percent === 100) { message = "perfect!"; color = "#32E71A"; }
+
+          // Update Figma Bottom Text
+          const msgElement = document.getElementById("scanner-message");
+          if (msgElement) {
+            msgElement.innerText = message;
+          }
+
+          // Photobooth Capture
+          let currentFrameImage = null;
+          milestones.forEach(m => {
+            if (percent >= m && !capturedMilestones.has(m)) {
+               if (!currentFrameImage) currentFrameImage = getWebcamImage();
+               if (currentFrameImage) { capturedImages[m] = currentFrameImage; capturedMilestones.add(m); }
+            }
+          });
+
+          if (percent === 100 && !hasFinished) {
+            hasFinished = true;
+            setTimeout(() => {
+              window.showScreen("screen-loading");
+              generateCollage();
+              setTimeout(() => { window.showScreen("screen-prize"); }, 2500); 
+            }, 500);
+          }
+
+          // FIGMA UI BOUNDING BOX
+          if (results.faceLandmarks && results.faceLandmarks.length > 0) {
+            const landmarks = results.faceLandmarks[0];
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            for (const lm of landmarks) {
+              minX = Math.min(minX, lm.x); minY = Math.min(minY, lm.y);
+              maxX = Math.max(maxX, lm.x); maxY = Math.max(maxY, lm.y);
+            }
+            
+            // Calculate Pixel Position (Note: X is mirrored because the webcam is mirrored)
+            const padding = 20;
+            const boxWidth = (maxX - minX) * canvas.width + (padding * 2);
+            const boxHeight = (maxY - minY) * canvas.height + (padding * 2);
+            const x = (1 - maxX) * canvas.width - padding; // Flipped X
+            const y = minY * canvas.height - padding;
+            
+            // 1. Draw Bounding Box (6.32px border from Figma)
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 6.32;
+            ctx.strokeRect(x, y, boxWidth, boxHeight); 
+
+            // 2. Setup Label (Percentage Only)
+            const labelText = `${percent}%`;
+            ctx.font = "500 36px Inter, sans-serif";
+            const textWidth = ctx.measureText(labelText).width + 30; // 15px padding each side
+            const labelHeight = 55.11; // Exact height from Figma
+            
+            // 3. Draw Label Background
+            ctx.fillStyle = color;
+            ctx.fillRect(x - 3.16, y - 3.16, textWidth, labelHeight); // Offset slightly to align with border
+            
+            // 4. Draw Label Text
+            ctx.fillStyle = "white";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            ctx.fillText(labelText, x - 3.16 + 15, y - 3.16 + (labelHeight / 2) + 2); // Center text inside background
+          }
+        }
+      }
+      window.requestAnimationFrame(predictWebcam);
+    }
+
+    // Boot it up
+    setupFaceLandmarker();
+  </script>
+</body>
+</html>
