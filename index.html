@@ -317,13 +317,13 @@
           if (rawScore > 0.10) { percent = Math.round(((rawScore - 0.10) / 0.85) * 100); }
           percent = Math.max(0, Math.min(100, percent));
           
-          if (percent >= 90) {
+          if (percent >= 60) {
             if (!isAutoCounting) { isAutoCounting = true; countStartTime = performance.now(); }
-          } else if (percent < 50) { isAutoCounting = false; }
+          } else if (percent < 30) { isAutoCounting = false; }
 
           if (isAutoCounting) {
             const elapsed = performance.now() - countStartTime;
-            percent = Math.floor(90 + (10 * Math.min(elapsed / 3000, 1)));
+            percent = Math.floor(60 + (40 * Math.min(elapsed / 3000, 1)));
           }
           
           let message = "Neutral"; let color = "#0088FF";
